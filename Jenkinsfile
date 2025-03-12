@@ -22,35 +22,19 @@ pipeline {
                 }
             }
         }
-
-        stage('Tag Docker Image') {
+    
+        stage('Push Docker Image') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                         sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
-                        sh "docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_NAME}:latest"
-                        sh "docker push ${DOCKER_IMAGE_NAME}:latest"
-                    }
-                }
-            } 
-        }
-    
-        stage('Deploy TEST') {
-            when {
-                branch 'test'
-            }
-            steps {
-                script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh-user-aws', keyFileVariable: 'SSH_KEY')]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${DEPLOY_USER}@${DEPLOY_SERVER} bash -c '
-                                docker pull ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}
-                                docker stop simple-nodejs || true
-                                docker rm simple-nodejs || true
-                                docker run -d --name simple-nodejs -p 3000:3000 ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}
-                            '
-                        """
+                        sh "docker push ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                        
+                        // Tag as latest only if on the main branch
+                        if (env.BRANCH_NAME == 'main') {
+                            sh "docker tag ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER} ${DOCKER_IMAGE_NAME}:latest"
+                            sh "docker push ${DOCKER_IMAGE_NAME}:latest"
+                        }
                     }
                 }
             }
