@@ -32,7 +32,7 @@ pipeline {
                         
                         // Tag as latest only if on the main branch
                         if (env.BRANCH_NAME == 'main') {
-                            sh "docker tag ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ${DOCKER_IMAGE_NAME}:latest"
+                            sh "docker tag ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}:latest"
                             sh "docker push ${DOCKER_IMAGE_NAME}:latest"
                         }
                     }
