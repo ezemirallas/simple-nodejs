@@ -9,8 +9,8 @@ pipeline {
         stage('Build Docker Image') {
             steps { 
                 script {
-                    sh "echo ${DOCKER_HUB_PASSWORD} | sudo docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
-                    sh "sudo docker build -t ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER} ."
+                    sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
+                    sh "docker build -t ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER} ."
                 } 
             }
         }
@@ -92,8 +92,8 @@ pipeline {
         always {
             script {
                 try {
-                    sh "sudo docker rmi ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-                    sh "sudo docker rmi ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-latest"
+                    sh "docker rmi ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    sh "docker rmi ${DOCKER_IMAGE_NAME}:${env.BRANCH_NAME}-latest"
                 } catch (Exception e) {
                     echo 'Failed to remove Docker image.'
                 }
