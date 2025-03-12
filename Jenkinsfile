@@ -6,13 +6,6 @@ pipeline {
     }
     
     stages {
-        /*
-        stage('Checkout') {
-            steps {
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/ezemirallas/simple-nodejs.git'
-            }
-    */    }
-    
         stage('Build Docker Image') {
             steps { 
                 script {
@@ -106,4 +99,4 @@ pipeline {
             }
         }
     }
-    
+}
